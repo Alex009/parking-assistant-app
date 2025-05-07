@@ -6,4 +6,6 @@ data class CarInfo(
     val wheelBase: Meter,
     val frontOverhang: Meter,
     val turningRadius: Meter,
+    /** максимальный угол поворота руля от центра */
+    val maxSteeringAngle: Float,
 )
