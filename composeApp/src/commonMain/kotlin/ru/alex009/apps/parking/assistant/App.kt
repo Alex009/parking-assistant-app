@@ -1,6 +1,7 @@
 package ru.alex009.apps.parking.assistant
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -16,11 +17,14 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -33,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -40,12 +45,19 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import parking_assistant_app.composeapp.generated.resources.Res
-import parking_assistant_app.composeapp.generated.resources.car
+import parking_assistant_app.composeapp.generated.resources.coupe_1
+import parking_assistant_app.composeapp.generated.resources.sedan_1
+import parking_assistant_app.composeapp.generated.resources.sedan_2
+import parking_assistant_app.composeapp.generated.resources.sport_car_1
+import parking_assistant_app.composeapp.generated.resources.sport_car_2
 import parking_assistant_app.composeapp.generated.resources.steering_wheel
+import parking_assistant_app.composeapp.generated.resources.van_1
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sign
 import kotlin.math.sin
 
@@ -58,18 +70,70 @@ val car = CarInfo(
     maxSteeringAngle = 540f
 )
 
-data class Vector2D(
-    val x: Float,
-    val y: Float,
+val scenes: List<Scene> = listOf(
+    Scene(), // first scene - empty
+    Scene(
+        cars = listOf(
+            SceneCar(
+                image = Res.drawable.sedan_1,
+                position = CarPosition(
+                    rotationAngle = 170f,
+                    offsetX = -310f,
+                    offsetY = 200f
+                )
+            )
+        ),
+        drawings = listOf(
+            SceneDrawing.Line(
+                start = IntOffset(x = -1000, y = 550),
+                end = IntOffset(x = 1000, y = 550),
+                width = 10f
+            ),
+            SceneDrawing.Line(
+                start = IntOffset(x = -1000, y = -600),
+                end = IntOffset(x = 1000, y = -600),
+                width = 10f
+            )
+        ),
+        initialPosition = CarPosition(
+            offsetX = 0f,
+            offsetY = 200f
+        )
+    ),
+    Scene(
+        cars = listOf(
+            SceneCar(
+                image = Res.drawable.sedan_1,
+                position = CarPosition(
+                    rotationAngle = 90f,
+                    offsetX = 200f,
+                    offsetY = 350f
+                )
+            ),
+            SceneCar(
+                image = Res.drawable.coupe_1,
+                position = CarPosition(
+                    rotationAngle = -90f,
+                    offsetX = 230f,
+                    offsetY = -350f
+                )
+            )
+        ),
+        initialPosition = CarPosition(
+            offsetX = -300f,
+            offsetY = 500f
+        )
+    )
 )
-
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        val steeringAngle: MutableState<Float> = remember { mutableStateOf(270f) }
-        val carPositionState: MutableState<CarPosition> = remember { mutableStateOf(CarPosition()) }
+        val steeringAngle: MutableState<Float> = remember { mutableStateOf(0f) }
+        var sceneIndex: Int by remember { mutableStateOf(0) }
+        val scene: Scene = remember(sceneIndex) { scenes[sceneIndex] }
+        val carPositionState: MutableState<CarPosition> = remember(scene) { mutableStateOf(scene.initialPosition) }
         var carPosition: CarPosition by carPositionState
 
         val turnCircle: Circle? = remember(steeringAngle.value, carPosition) {
@@ -80,6 +144,20 @@ fun App() {
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
             val turnCircleColor = MaterialTheme.colors.secondary.copy(alpha = 0.5f)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = { sceneIndex = max(0, sceneIndex - 1) }) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null)
+                }
+                Text("Ситуация ${sceneIndex + 1}")
+                IconButton(onClick = { sceneIndex = min(scenes.size - 1, sceneIndex + 1) }) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+                }
+            }
 
             Box(
                 modifier = Modifier
@@ -109,8 +187,28 @@ fun App() {
 //                                y = centerY + carPosition.offsetY
 //                            )
 //                        )
+
+                        scene.drawings.forEach { drawing ->
+                            drawing.draw(scope = this, centerX = centerX, centerY = centerY)
+                        }
                     }
             ) {
+                scene.cars.forEach { car ->
+                    Image(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset {
+                                IntOffset(
+                                    x = car.position.offsetX.toInt(),
+                                    y = car.position.offsetY.toInt()
+                                )
+                            }
+                            .rotate(car.position.rotationAngle),
+                        painter = painterResource(car.image),
+                        contentDescription = null
+                    )
+                }
+
                 Image(
                     modifier = Modifier
                         .align(Alignment.Center)
@@ -121,7 +219,7 @@ fun App() {
                             )
                         }
                         .rotate(carPosition.rotationAngle),
-                    painter = painterResource(Res.drawable.car),
+                    painter = painterResource(Res.drawable.sedan_2),
                     contentDescription = null
                 )
             }
@@ -207,20 +305,6 @@ private suspend fun moveEachSecond(
         delay(10)
     }
 }
-
-@Immutable
-data class CarPosition(
-    val rotationAngle: Float = 0f,
-    val offsetX: Float = 0f,
-    val offsetY: Float = 0f,
-)
-
-@Immutable
-data class Circle(
-    val centerX: Float,
-    val centerY: Float,
-    val radius: Float,
-)
 
 fun CarPosition.drive(steeringAngle: Float, distance: Float): CarPosition {
     val turnCircle: Circle = getTurnCircle(steeringAngle) ?: return moveForward(distance)

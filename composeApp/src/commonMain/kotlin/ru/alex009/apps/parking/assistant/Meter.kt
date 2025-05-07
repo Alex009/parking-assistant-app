@@ -6,8 +6,8 @@ import kotlin.jvm.JvmInline
 value class Meter(val value: Float) {
     val pixels: Float
         get() {
-            // 4.7 метра = 487px
-            return value * (487 / 4.7f)
+            // 4.7 метра = 719px
+            return value * (719 / 4.7f)
         }
 }
 
