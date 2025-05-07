@@ -69,7 +69,7 @@ data class Vector2D(
 @Preview
 fun App() {
     MaterialTheme {
-        val steeringAngle: MutableState<Float> = remember { mutableStateOf(90f) }
+        val steeringAngle: MutableState<Float> = remember { mutableStateOf(270f) }
         val carPositionState: MutableState<CarPosition> = remember { mutableStateOf(CarPosition()) }
         var carPosition: CarPosition by carPositionState
 
@@ -223,6 +223,9 @@ fun CarPosition.drive(steeringAngle: Float, distance: Float): CarPosition {
     if (steeringAngle == 0f) return moveForward(distance)
 
     val wheelSign = sign(steeringAngle)                    // +1 или −1
+    // motionSign = +1 при движении вперёд, −1 — при движении назад
+    val motionSign = if (distance >= 0f) 1f else -1f
+
     // 1. радиус и центр поворота (ваша логика)
     val turnRadius = car.turningRadius.pixels * (car.maxSteeringAngle / abs(steeringAngle))
     val dirToCenter = rotationAngle + wheelSign * 90f
@@ -234,7 +237,7 @@ fun CarPosition.drive(steeringAngle: Float, distance: Float): CarPosition {
     val currentAngle = atan2(offsetY - centerY, offsetX - centerX)
 
     // 3. учитываем направление руля и управления (вперёд/назад)
-    val rotSign = if (distance >= 0f) wheelSign else -wheelSign
+    val rotSign = motionSign * wheelSign
     val signedAngleDelta = (abs(distance) / turnRadius) * rotSign
 
     // 4. новая точка дуги
@@ -243,28 +246,19 @@ fun CarPosition.drive(steeringAngle: Float, distance: Float): CarPosition {
     val newY = centerY + turnRadius * sin(newAngle)
 
     // 5. пересчитываем угол машины в вашей системе координат
-    val newRotation = if (distance > 0) {
-        calculateAngleBetweenPositions(
-            oldX = offsetX,
-            oldY = offsetY,
-            newX = newX,
-            newY = newY
-        )
-    } else {
-        calculateAngleBetweenPositions(
-            newX = offsetX,
-            newY = offsetY,
-            oldX = newX,
-            oldY = newY
-        )
-    }
+    val newRotation = calculateAngleBetweenPositions(
+        oldX = newX,
+        oldY = newY,
+        newX = centerX,
+        newY = centerY
+    ) - wheelSign * 90f
 
     return CarPosition(
         rotationAngle = newRotation,
         offsetX = newX,
         offsetY = newY,
         turnCircle = Circle(centerX, centerY, turnRadius)
-    ).also { println(it) }
+    ).also { println("angles: $rotationAngle $currentAngle $newAngle pos: $it") }
 }
 
 private fun CarPosition.moveForward(distance: Float): CarPosition {
