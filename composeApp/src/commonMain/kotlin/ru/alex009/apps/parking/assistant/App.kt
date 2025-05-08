@@ -119,9 +119,117 @@ val scenes: List<Scene> = listOf(
                 )
             )
         ),
+        drawings = listOf(
+            SceneDrawing.Line(
+                start = IntOffset(x = 550, y = -1500),
+                end = IntOffset(x = 550, y = 1500),
+                width = 10f
+            )
+        ),
         initialPosition = CarPosition(
             offsetX = -300f,
             offsetY = 500f
+        )
+    ),
+    Scene(
+        cars = listOf(
+            SceneCar(
+                image = Res.drawable.sedan_1,
+                position = CarPosition(
+                    rotationAngle = 0f,
+                    offsetX = 400f,
+                    offsetY = -800f
+                )
+            ),
+            SceneCar(
+                image = Res.drawable.coupe_1,
+                position = CarPosition(
+                    rotationAngle = 0f,
+                    offsetX = 400f,
+                    offsetY = 800f
+                )
+            )
+        ),
+        drawings = listOf(
+            SceneDrawing.Line(
+                start = IntOffset(x = 550, y = -1500),
+                end = IntOffset(x = 550, y = 1500),
+                width = 10f
+            )
+        ),
+        initialPosition = CarPosition(
+            offsetX = 0f,
+            offsetY = 500f
+        )
+    ),
+    Scene(
+        cars = listOf(
+            SceneCar(
+                image = Res.drawable.sedan_1,
+                position = CarPosition(
+                    rotationAngle = 0f,
+                    offsetX = 400f,
+                    offsetY = -650f
+                )
+            ),
+            SceneCar(
+                image = Res.drawable.coupe_1,
+                position = CarPosition(
+                    rotationAngle = 0f,
+                    offsetX = 400f,
+                    offsetY = 650f
+                )
+            )
+        ),
+        drawings = listOf(
+            SceneDrawing.Line(
+                start = IntOffset(x = 550, y = -1500),
+                end = IntOffset(x = 550, y = 1500),
+                width = 10f
+            )
+        ),
+        initialPosition = CarPosition(
+            offsetX = 0f,
+            offsetY = 500f
+        )
+    ),
+    Scene(
+        cars = listOf(
+            SceneCar(
+                image = Res.drawable.sedan_1,
+                position = CarPosition(
+                    rotationAngle = 40f,
+                    offsetX = 200f,
+                    offsetY = -700f
+                )
+            ),
+            SceneCar(
+                image = Res.drawable.coupe_1,
+                position = CarPosition(
+                    rotationAngle = 50f,
+                    offsetX = 200f,
+                    offsetY = 250f
+                )
+            ),
+            SceneCar(
+                image = Res.drawable.van_1,
+                position = CarPosition(
+                    rotationAngle = 45f,
+                    offsetX = 200f,
+                    offsetY = 800f
+                )
+            )
+        ),
+        drawings = listOf(
+            SceneDrawing.Line(
+                start = IntOffset(x = 450, y = -1500),
+                end = IntOffset(x = 450, y = 1500),
+                width = 10f
+            )
+        ),
+        initialPosition = CarPosition(
+            offsetX = -300f,
+            offsetY = 700f
         )
     )
 )
@@ -130,9 +238,9 @@ val scenes: List<Scene> = listOf(
 @Preview
 fun App() {
     MaterialTheme {
-        val steeringAngle: MutableState<Float> = remember { mutableStateOf(0f) }
         var sceneIndex: Int by remember { mutableStateOf(0) }
         val scene: Scene = remember(sceneIndex) { scenes[sceneIndex] }
+        val steeringAngle: MutableState<Float> = remember(scene) { mutableStateOf(0f) }
         val carPositionState: MutableState<CarPosition> = remember(scene) { mutableStateOf(scene.initialPosition) }
         var carPosition: CarPosition by carPositionState
 
