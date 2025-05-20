@@ -18,11 +18,12 @@
   # Sets environment variables in the workspace
   env = {
     JAVA_HOME = "${pkgs.jdk17}";
+    ANDROID_HOME = "/home/user/.androidsdkroot";
   };
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
-      "kotlin.kotlin-vs-code"
+      "fwcd.kotlin"
       # "vscodevim.vim"
     ];
 
@@ -30,16 +31,10 @@
     previews = {
       enable = true;
       previews = {
-        # web = {
-        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
-        #   # and show it in IDX's web preview panel
-        #   command = ["npm" "run" "dev"];
-        #   manager = "web";
-        #   env = {
-        #     # Environment variables to set for your server
-        #     PORT = "$PORT";
-        #   };
-        # };
+        android = {
+          command = ["./gradlew" "installDebug"];
+          manager = "flutter";
+        };
       };
     };
 
