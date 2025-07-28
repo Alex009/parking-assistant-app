@@ -48,8 +48,6 @@ import parking_assistant_app.composeapp.generated.resources.Res
 import parking_assistant_app.composeapp.generated.resources.coupe_1
 import parking_assistant_app.composeapp.generated.resources.sedan_1
 import parking_assistant_app.composeapp.generated.resources.sedan_2
-import parking_assistant_app.composeapp.generated.resources.sport_car_1
-import parking_assistant_app.composeapp.generated.resources.sport_car_2
 import parking_assistant_app.composeapp.generated.resources.steering_wheel
 import parking_assistant_app.composeapp.generated.resources.van_1
 import kotlin.math.PI
