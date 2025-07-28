@@ -261,7 +261,7 @@ fun App() {
                 IconButton(onClick = { sceneIndex = max(0, sceneIndex - 1) }) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null)
                 }
-                Text("Ситуация ${sceneIndex + 1}")
+                Text("Scenario ${sceneIndex + 1}")
                 IconButton(onClick = { sceneIndex = min(scenes.size - 1, sceneIndex + 1) }) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
                 }
